@@ -29,7 +29,7 @@ describe('overlay microphone lifecycle', () => {
   let cleanups: Array<() => void>
   let contexts: Array<{ close: ReturnType<typeof vi.fn>; source: { disconnect: ReturnType<typeof vi.fn> }; analyser: { disconnect: ReturnType<typeof vi.fn> } }>
   let recorders: Array<{ stop: () => void }>
-  let recorderStarts: ReturnType<typeof vi.fn>
+  let recorderStarts: ReturnType<typeof vi.fn<() => void>>
 
   beforeEach(() => {
     hooks.effects = []

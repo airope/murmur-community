@@ -24,6 +24,16 @@ certification. The CI badge and linked workflow are the live build status.
 - Secret scanning uses Gitleaks and a clean public Git history. Old private
   development history and operational documents are intentionally excluded.
 
+## Observed local recognition result
+
+The opt-in test was actually executed on macOS arm64. It downloaded and verified
+the pinned sherpa runtime and Whisper Tiny model, extracted the real executable,
+and recognized both expected phrases from the hashed public JFK WAV fixture.
+The integration test passed in 98.15 seconds including first-time installation.
+This test used the existing Vitest 2 runner before the fresh toolchain install;
+it does not substitute for the new-lockfile Windows/macOS CI gates. It did not
+use a microphone or personal audio.
+
 ## Dependency audit
 
 The refreshed lockfile audit found no high/critical advisories at preparation
