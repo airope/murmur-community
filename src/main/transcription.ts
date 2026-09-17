@@ -4,7 +4,7 @@ import { SESSION_CHECK_SCRIPT } from '../chatgpt/session-check'
 import { VOICE_START_SCRIPT } from '../chatgpt/voice-start'
 import { VOICE_STOP_SCRIPT } from '../chatgpt/voice-stop'
 import { SELECTORS } from '../chatgpt/selectors'
-import { WindowManager } from './window'
+import { WindowManager, isChatGPTURL } from './window'
 import { ClipboardService } from './clipboard'
 import { StorageService } from './storage'
 import { NotificationService } from './notifications'
@@ -164,7 +164,7 @@ export class TranscriptionService {
 
   async checkSession(): Promise<boolean> {
     const wc = this.getChatGPTWebContents()
-    if (!wc) return false
+    if (!wc || !isChatGPTURL(wc.getURL())) return false
     try {
       return await wc.executeJavaScript(SESSION_CHECK_SCRIPT)
     } catch {
@@ -216,7 +216,7 @@ export class TranscriptionService {
     const url = wc.getURL()
 
     // Check if URL is still ChatGPT
-    if (!url.includes('chatgpt.com') && !url.includes('chat.openai.com')) {
+    if (!isChatGPTURL(url)) {
       console.log('[Murmur] tryChatGPTReady: URL navigated away, reloading...')
       wc.loadURL(CHATGPT_URL)
       const loaded = await this.windowManager.waitForChatGPTLoad(15000)

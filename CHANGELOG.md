@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- Security: restrict remote ChatGPT media permissions, navigation and readiness to explicit trusted origins/frames; deny camera and popups.
+- Fix testing previously saved provider keys without sending keys back to the renderer.
+- Add behavioral regression coverage; no live ChatGPT login certification.
+
 ## 0.1.0 — Community edition
 
 - Separate open-source Windows/macOS desktop project from the private website.

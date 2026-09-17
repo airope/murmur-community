@@ -391,7 +391,9 @@ function setupIPC(): void {
 
   handle('byok:test-api-key', async (_event, provider: string, key: string) => {
     if (!ALLOWED_PROVIDERS.includes(provider)) return false
-    return apiKeys.testApiKey(provider, key)
+    const keyToTest = key || apiKeys.getApiKey(provider)
+    if (!keyToTest) return false
+    return apiKeys.testApiKey(provider, keyToTest)
   })
 
   handle('byok:delete-api-key', (_event, provider: string) => {

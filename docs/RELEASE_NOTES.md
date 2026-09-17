@@ -1,6 +1,13 @@
-# Murmur Community 0.1.0 — early preview
+# Murmur Community 0.1.1 — early preview
 
 A standalone open-source desktop edition for Windows and macOS, under MIT.
+
+## Security and correctness fixes in 0.1.1
+
+- Restrict experimental ChatGPT media access to audio requests from the owned main frame at exact trusted HTTPS origins. Deny camera, unknown origins, popups and unapproved navigation/redirects.
+- Replace substring readiness checks with exact origin checks.
+- Repair Save → Test for stored provider keys without exposing saved secrets to the renderer.
+- Users of 0.1.0 should upgrade before using ChatGPT. Additional/popup-only SSO flows intentionally fail closed. Live login and physical microphone compatibility remain unverified.
 
 ## Community changes
 
@@ -15,9 +22,9 @@ A standalone open-source desktop edition for Windows and macOS, under MIT.
 
 ## Downloads
 
-- `Murmur-Community-Setup-0.1.0.exe`: Windows x64 installer.
-- `Murmur-Community-0.1.0-arm64.zip`: Apple Silicon macOS application.
-- `Murmur-Community-0.1.0-x64.zip`: Intel macOS application.
+- `Murmur-Community-Setup-0.1.1.exe`: Windows x64 installer.
+- `Murmur-Community-0.1.1-arm64.zip`: Apple Silicon macOS application.
+- `Murmur-Community-0.1.1-x64.zip`: Intel macOS application.
 - `SHA256SUMS`: SHA-256 checksums for the files above.
 
 These are **unsigned development binaries**, not notarized or reputation-backed
@@ -37,8 +44,8 @@ Apple Silicon does **not** mean both CPU architectures were runtime-tested.
 No live personal microphone, paid cloud-provider credentials, ChatGPT account,
 native paste into arbitrary applications or all keyboard layouts are certified
 by those tests. The ChatGPT adapter remains experimental. See
-[verification scope](https://github.com/airope/murmur-community/blob/v0.1.0/docs/VERIFICATION.md), [privacy](https://github.com/airope/murmur-community/blob/v0.1.0/docs/PRIVACY.md) and
-[model provenance](https://github.com/airope/murmur-community/blob/v0.1.0/docs/MODELS.md). Moderate transitive dependency advisories are
+[verification scope](https://github.com/airope/murmur-community/blob/v0.1.1/docs/VERIFICATION.md), [privacy](https://github.com/airope/murmur-community/blob/v0.1.1/docs/PRIVACY.md) and
+[model provenance](https://github.com/airope/murmur-community/blob/v0.1.1/docs/MODELS.md). Moderate transitive dependency advisories are
 recorded openly; no claim of a formal security audit is made.
 
 The old commercial website and backend are separate and are not dependencies of
