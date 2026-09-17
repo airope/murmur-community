@@ -45,6 +45,8 @@ jobs:
             test -s "$file"
             (cd "$(dirname "$file")" && sha256sum "$(basename "$file")") >> SHA256SUMS
           done
-          gh release create v0.1.0 "${files[@]}" SHA256SUMS --draft --prerelease \
-            --target "$(git rev-parse HEAD)" --title 'Murmur Community 0.1.0 — early preview' \
+          version="$(jq -r .version package.json)"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          gh release create "v$version" "${files[@]}" SHA256SUMS --draft --prerelease \
+            --target "$(git rev-parse HEAD)" --title "Murmur Community $version — early preview" \
             --notes-file docs/RELEASE_NOTES.md

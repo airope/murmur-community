@@ -1,10 +1,26 @@
 import { app, BrowserWindow, screen, session } from 'electron'
 import { join } from 'path'
-import { is } from '@electron-toolkit/utils'
 import { CHATGPT_URL, CHATGPT_PARTITION } from '../shared/constants'
 import { pathToFileURL } from 'node:url'
 import { isTrustedLocalSender } from './ipc-policy'
 import { mt } from './i18n'
+
+const CHATGPT_ORIGINS = new Set(['https://chatgpt.com', 'https://chat.openai.com'])
+
+function secureOrigin(value: string | undefined): string | null {
+  if (!value) return null
+  try {
+    const url = new URL(value)
+    return url.protocol === 'https:' && !url.username && !url.password ? url.origin : null
+  } catch {
+    return null
+  }
+}
+
+export function isChatGPTURL(value: string | undefined): boolean {
+  const origin = secureOrigin(value)
+  return origin !== null && CHATGPT_ORIGINS.has(origin)
+}
 
 export class WindowManager {
   private mainWindow: BrowserWindow | null = null
@@ -41,7 +57,7 @@ export class WindowManager {
     })
 
     // Content Security Policy (relaxed in dev for Vite HMR inline scripts)
-    const csp = is.dev
+    const csp = !app.isPackaged
       ? "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*; font-src 'self'"
       : "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ; font-src 'self'"
     this.mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
@@ -92,14 +108,31 @@ export class WindowManager {
     }
     this.isCreatingChatGPT = true
 
-    // Set up permission handler for microphone access
+    // This persistent partition is remote-only; never alter the local renderer session.
     const ses = session.fromPartition(CHATGPT_PARTITION)
-    ses.setPermissionRequestHandler((_webContents, permission, callback) => {
-      if (permission === 'media') {
-        callback(true)
-        return
-      }
-      callback(false)
+    const isOwnedMainFrame = (
+      wc: Electron.WebContents | null,
+      details: { isMainFrame: boolean; requestingUrl?: string; securityOrigin?: string }
+    ): boolean => {
+      const owned = this.getChatGPTWindow()?.webContents
+      if (!wc || wc !== owned || wc.isDestroyed() || details.isMainFrame !== true) return false
+      // Electron supplies no WebFrameMain in permission callbacks. Its isMainFrame
+      // identity flag plus the owned WebContents and current frame URL bind the request.
+      const origin = secureOrigin(wc.mainFrame.url)
+      return isChatGPTURL(wc.mainFrame.url) &&
+        secureOrigin(wc.getURL()) === origin &&
+        secureOrigin(details.requestingUrl) === origin &&
+        secureOrigin(details.securityOrigin) === origin
+    }
+    ses.setPermissionRequestHandler((wc, permission, callback, details) => {
+      const media = details as Electron.MediaAccessPermissionRequest
+      callback(permission === 'media' && isOwnedMainFrame(wc, media) &&
+        media.mediaTypes?.length === 1 && media.mediaTypes[0] === 'audio')
+    })
+    ses.setPermissionCheckHandler((wc, permission, requestingOrigin, details) => {
+      return permission === 'media' && details.mediaType === 'audio' &&
+        isOwnedMainFrame(wc, details) &&
+        secureOrigin(requestingOrigin) === secureOrigin(details.requestingUrl)
     })
 
     this.chatgptWindow = new BrowserWindow({
@@ -112,6 +145,27 @@ export class WindowManager {
       }
     })
 
+    // Login navigation only (never microphone origins): OpenAI/Auth0 and the
+    // Google, Microsoft and Apple identity providers. No wildcard SSO domains.
+    const navigationOrigins = new Set([
+      ...CHATGPT_ORIGINS,
+      'https://auth.openai.com',
+      'https://auth0.openai.com',
+      'https://accounts.google.com',
+      'https://login.microsoftonline.com',
+      'https://appleid.apple.com'
+    ])
+    const wc = this.chatgptWindow.webContents
+    const guardNavigation = (event: Electron.Event, url: string): void => {
+      const origin = secureOrigin(url)
+      if (!origin || !navigationOrigins.has(origin)) event.preventDefault()
+    }
+    wc.on('will-navigate', guardNavigation)
+    wc.on('will-redirect', (event, url, _inPlace, isMainFrame) => {
+      if (isMainFrame) guardNavigation(event, url)
+    })
+    // Popups get neither the partition nor an unguarded new WebContents.
+    wc.setWindowOpenHandler(() => ({ action: 'deny' }))
     this.chatgptWindow.loadURL(CHATGPT_URL)
 
     // Hide instead of destroy on close to preserve session cookies
@@ -418,7 +472,7 @@ export class WindowManager {
   private loadRendererRoute(win: BrowserWindow, route: string): void {
     win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
     win.webContents.on('will-navigate', (event) => event.preventDefault())
-    if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    if (!app.isPackaged && process.env['ELECTRON_RENDERER_URL']) {
       win.loadURL(process.env['ELECTRON_RENDERER_URL'] + '#' + route)
     } else {
       win.loadFile(join(__dirname, '../renderer/index.html'), { hash: route })

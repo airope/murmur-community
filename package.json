@@ -1,6 +1,6 @@
 {
   "name": "murmur-community",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Open-source desktop dictation for Windows and macOS: local speech recognition and optional bring-your-own-key cloud providers",
   "main": "./out/main/index.js",
   "author": "Yegor Burda-Vinakur",
