@@ -1,0 +1,50 @@
+name: Prepare verified prerelease
+
+on:
+  workflow_dispatch:
+    inputs:
+      verified_run_id:
+        description: Successful Verify community builds run for this exact main commit
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Require successful main-branch build of this exact commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ inputs.verified_run_id }}
+        run: |
+          [[ "$RUN_ID" =~ ^[0-9]+$ ]]
+          gh run view "$RUN_ID" --json conclusion,headSha,headBranch,name,event > verified-run.json
+          test "$(jq -r .conclusion verified-run.json)" = success
+          test "$(jq -r .headBranch verified-run.json)" = main
+          test "$(jq -r .name verified-run.json)" = 'Verify community builds'
+          test "$(jq -r .event verified-run.json)" = push
+          test "$(jq -r .headSha verified-run.json)" = "$(git rev-parse HEAD)"
+          gh run download "$RUN_ID" --name community-development-windows-latest --dir assets/windows
+          gh run download "$RUN_ID" --name community-development-macos-latest --dir assets/macos
+      - name: Create draft with unsigned binaries and checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          mapfile -d '' files < <(find assets -type f \( -name '*.exe' -o -name '*.zip' \) -print0 | sort -z)
+          test "${#files[@]}" -eq 3
+          for file in "${files[@]}"; do
+            test -s "$file"
+            (cd "$(dirname "$file")" && sha256sum "$(basename "$file")") >> SHA256SUMS
+          done
+          gh release create v0.1.0 "${files[@]}" SHA256SUMS --draft --prerelease \
+            --target "$(git rev-parse HEAD)" --title 'Murmur Community 0.1.0 — early preview' \
+            --notes-file docs/RELEASE_NOTES.md

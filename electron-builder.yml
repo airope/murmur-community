@@ -1,0 +1,42 @@
+appId: com.murmur.community
+productName: Murmur Community
+npmRebuild: false
+asar: true
+directories:
+  buildResources: build
+  output: dist
+files:
+  - 'out/**/*'
+  - 'package.json'
+  - '!**/*.map'
+extraResources:
+  - from: src/overlay/
+    to: overlay/
+  - from: build/logo-equalizer.png
+    to: logo-equalizer.png
+  - from: build/tray-icon.png
+    to: tray-icon.png
+win:
+  executableName: Murmur Community
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch: [x64]
+nsis:
+  artifactName: Murmur-Community-Setup-${version}.${ext}
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+mac:
+  icon: build/logo-equalizer.png
+  identity: null
+  notarize: false
+  hardenedRuntime: true
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    NSMicrophoneUsageDescription: Murmur Community uses the microphone only when you start a dictation.
+  target:
+    - target: zip
+      arch: [arm64, x64]
+  artifactName: Murmur-Community-${version}-${arch}.${ext}

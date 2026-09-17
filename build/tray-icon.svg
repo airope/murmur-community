@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <circle cx="128" cy="128" r="48" fill="rgba(190,85,20,0.3)"/>
+  <line x1="128.0" y1="72.0" x2="128.0" y2="9.7" stroke="rgba(190,85,20,0.90)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="149.4" y1="76.3" x2="172.9" y2="19.7" stroke="rgba(190,85,20,0.89)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="167.6" y1="88.4" x2="212.7" y2="43.3" stroke="rgba(190,85,20,0.91)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="179.7" y1="106.6" x2="217.9" y2="90.8" stroke="rgba(190,85,20,0.75)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="184.0" y1="128.0" x2="223.7" y2="128.0" stroke="rgba(190,85,20,0.74)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="179.7" y1="149.4" x2="218.4" y2="165.5" stroke="rgba(190,85,20,0.76)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="167.6" y1="167.6" x2="207.6" y2="207.6" stroke="rgba(190,85,20,0.86)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="149.4" y1="179.7" x2="179.7" y2="252.8" stroke="rgba(190,85,20,1.00)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="128.0" y1="184.0" x2="128.0" y2="223.3" stroke="rgba(190,85,20,0.74)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="106.6" y1="179.7" x2="91.1" y2="217.0" stroke="rgba(190,85,20,0.75)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="88.4" y1="167.6" x2="61.7" y2="194.3" stroke="rgba(190,85,20,0.73)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="76.3" y1="149.4" x2="20.6" y2="172.5" stroke="rgba(190,85,20,0.89)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="72.0" y1="128.0" x2="10.1" y2="128.0" stroke="rgba(190,85,20,0.90)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="76.3" y1="106.6" x2="21.1" y2="83.7" stroke="rgba(190,85,20,0.88)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="88.4" y1="88.4" x2="56.5" y2="56.5" stroke="rgba(190,85,20,0.78)" stroke-width="18" stroke-linecap="round"/>
+  <line x1="106.6" y1="76.3" x2="98.0" y2="55.5" stroke="rgba(190,85,20,0.62)" stroke-width="18" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="overlay.css" />
+  </head>
+  <body>
+    <div id="overlay">
+      <!-- Animated orb -->
+      <div id="orb-container" class="orb-container">
+        <div class="orb-glow"></div>
+        <div class="orb">
+          <div class="orb-highlight"></div>
+        </div>
+        <!-- Check mark SVG (visible only in done state) -->
+        <div class="check-svg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+      </div>
+      <!-- Label -->
+      <span id="label" class="label">En ecoute...</span>
+    </div>
+    <script>
+      var currentState = '';
+      var hideTimeout = null;
+
+      // Overlay translations — injected from main process via setLocaleData
+      var overlayStrings = {
+        listening: 'En ecoute...',
+        processing: 'Transcription...',
+        done: 'Copie !'
+      };
+
+      function setLocaleData(data) {
+        if (data && data.listening) overlayStrings.listening = data.listening;
+        if (data && data.processing) overlayStrings.processing = data.processing;
+        if (data && data.done) overlayStrings.done = data.done;
+      }
+
+      function setState(state) {
+        if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null; }
+
+        var overlay = document.getElementById('overlay');
+        var orb = document.getElementById('orb-container');
+        var label = document.getElementById('label');
+
+        currentState = state;
+
+        // Set orb state class
+        orb.className = 'orb-container ' + state;
+
+        // Update label
+        if (state === 'listening') label.textContent = overlayStrings.listening;
+        else if (state === 'processing') label.textContent = overlayStrings.processing;
+        else if (state === 'done') label.textContent = overlayStrings.done;
+
+        // Trigger appear animation
+        overlay.classList.remove('hiding');
+        // Force reflow for transition
+        void overlay.offsetWidth;
+        overlay.classList.add('visible');
+      }
+
+      function hideOverlay() {
+        var overlay = document.getElementById('overlay');
+        overlay.classList.remove('visible');
+        overlay.classList.add('hiding');
+      }
+    </script>
+  </body>
+</html>

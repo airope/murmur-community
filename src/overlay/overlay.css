@@ -1,0 +1,261 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: transparent;
+  overflow: hidden;
+  -webkit-app-region: no-drag;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Container with appear/disappear animations */
+#overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: scale(0.3) translateY(20px);
+  transition: opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#overlay.visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+#overlay.hiding {
+  opacity: 0;
+  transform: scale(0.3) translateY(20px);
+  transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+}
+
+/* Orb container */
+.orb-container {
+  position: relative;
+  width: 72px;
+  height: 72px;
+}
+
+/* Outer glow ring — ripple effect */
+.orb-glow {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Inner orb — the main animated circle */
+.orb {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #7c3aed, #4f46e5 60%, #3730a3);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4),
+              0 0 60px rgba(99, 102, 241, 0.1),
+              inset 0 -4px 12px rgba(0, 0, 0, 0.2),
+              inset 0 4px 8px rgba(255, 255, 255, 0.1);
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
+
+/* Orb inner light — floating highlight */
+.orb-highlight {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  top: 12px;
+  left: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.5), transparent 70%);
+  animation: float-highlight 3s ease-in-out infinite;
+}
+
+/* Label below the orb */
+.label {
+  color: rgba(255, 255, 255, 0.95);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px 14px;
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.3s ease 0.2s, transform 0.3s ease 0.2s;
+}
+
+#overlay.visible .label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========================
+   STATE: Listening (red)
+   ======================== */
+.orb-container.listening .orb {
+  background: radial-gradient(circle at 35% 35%, #f87171, #ef4444 60%, #b91c1c);
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.5),
+              0 0 60px rgba(239, 68, 68, 0.2),
+              inset 0 -4px 12px rgba(0, 0, 0, 0.2),
+              inset 0 4px 8px rgba(255, 255, 255, 0.15);
+  animation: orb-breathe 2s ease-in-out infinite;
+}
+
+.orb-container.listening .orb-glow {
+  opacity: 1;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.3), transparent 70%);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Sound wave ripples */
+.orb-container.listening::before,
+.orb-container.listening::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(239, 68, 68, 0.4);
+  animation: ripple 2s ease-out infinite;
+}
+
+.orb-container.listening::after {
+  animation-delay: 1s;
+}
+
+/* ========================
+   STATE: Processing (amber/gold)
+   ======================== */
+.orb-container.processing .orb {
+  background: conic-gradient(from 0deg, #f59e0b, #eab308, #f97316, #f59e0b);
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.5),
+              0 0 60px rgba(245, 158, 11, 0.15),
+              inset 0 -4px 12px rgba(0, 0, 0, 0.15),
+              inset 0 4px 8px rgba(255, 255, 255, 0.2);
+  animation: orb-spin-gradient 1.5s linear infinite;
+}
+
+.orb-container.processing .orb-glow {
+  opacity: 1;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.25), transparent 70%);
+  animation: glow-think 1.5s ease-in-out infinite;
+}
+
+.orb-container.processing .orb-highlight {
+  animation: float-highlight-fast 1s ease-in-out infinite;
+}
+
+/* ========================
+   STATE: Done (green)
+   ======================== */
+.orb-container.done .orb {
+  background: radial-gradient(circle at 35% 35%, #4ade80, #22c55e 60%, #15803d);
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.6),
+              0 0 60px rgba(34, 197, 94, 0.2),
+              inset 0 -4px 12px rgba(0, 0, 0, 0.15),
+              inset 0 4px 8px rgba(255, 255, 255, 0.2);
+  animation: orb-success-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.orb-container.done .orb-glow {
+  opacity: 1;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.35), transparent 70%);
+}
+
+/* Check mark inside orb */
+.check-svg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.orb-container.done .check-svg {
+  opacity: 1;
+  animation: check-draw 0.4s ease-out 0.15s both;
+}
+
+.check-svg svg {
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* ========================
+   Keyframes
+   ======================== */
+
+/* Breathing/pulsing for listening */
+@keyframes orb-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+/* Glow pulse */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* Ripple waves emanating outward */
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* Rotating conic gradient for processing */
+@keyframes orb-spin-gradient {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+
+/* Thinking glow wobble */
+@keyframes glow-think {
+  0%, 100% { opacity: 0.5; transform: scale(1) rotate(0deg); }
+  33% { opacity: 0.8; transform: scale(1.1) rotate(3deg); }
+  66% { opacity: 0.6; transform: scale(1.05) rotate(-3deg); }
+}
+
+/* Float highlight */
+@keyframes float-highlight {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(3px, -3px); }
+}
+
+@keyframes float-highlight-fast {
+  0%, 100% { transform: translate(0, 0); opacity: 0.7; }
+  50% { transform: translate(5px, -5px); opacity: 1; }
+}
+
+/* Success pop */
+@keyframes orb-success-pop {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+/* Check mark draw */
+@keyframes check-draw {
+  0% { opacity: 0; transform: scale(0.5); }
+  100% { opacity: 1; transform: scale(1); }
+}
