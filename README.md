@@ -1,34 +1,68 @@
 # Murmur Community
 
-**Desktop voice dictation for Windows and macOS — local speech recognition, or cloud providers with your own API keys.**
+**Desktop voice dictation for Windows and macOS.** Speak, transcribe, and insert text into the app you're working in—with local speech recognition or your own cloud API keys.
+
+[Download 0.1.1](https://github.com/airope/murmur-community/releases/tag/v0.1.1) · [Quick start](#quick-start) · [Screenshots](#screenshots) · [Contribute](#contributing)
 
 [![Build verification](https://github.com/airope/murmur-community/actions/workflows/build.yml/badge.svg)](https://github.com/airope/murmur-community/actions/workflows/build.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-orange.svg)](LICENSE)
 
-> **Early community edition.** This is the independent open-source desktop app,
-> not the previous commercial release. No Murmur account, activation server or
-> paid subscription is required. Provider API fees, if you choose a cloud
-> provider, are your responsibility.
+No Murmur account, activation server, or subscription is required. Local recognition is the default; optional cloud services use your credentials and may charge their own fees.
 
-![Murmur Community desktop](docs/images/home.png)
+![Murmur Community desktop — actual application capture](docs/images/home.png)
 
-## What it does
+## Download
 
-- Start and stop dictation with a configurable global keyboard shortcut.
-- Insert recognized text into your current application using the clipboard.
-- Use downloadable local speech models, or choose a supported speech API.
-- Optionally rewrite text with AI using your own provider key and explicit modes.
-- Keep dictation history and usage statistics on your computer.
-- Configure microphone, shortcuts, sound and interface language.
+**0.1.1 is an early preview.** Choose the build for your computer:
 
-**No marketing telemetry, user/machine tracking, commercial quotas or automatic
-update polling.** Local STT is the default. Read the [privacy and network
-behavior](docs/PRIVACY.md), especially before enabling cloud post-processing.
+| Platform | Download |
+| --- | --- |
+| Windows x64 | [Windows installer (.exe)](https://github.com/airope/murmur-community/releases/download/v0.1.1/Murmur-Community-Setup-0.1.1.exe) |
+| macOS · Apple Silicon | [Mac application (.zip)](https://github.com/airope/murmur-community/releases/download/v0.1.1/Murmur-Community-0.1.1-arm64.zip) |
+| macOS · Intel | [Mac application (.zip)](https://github.com/airope/murmur-community/releases/download/v0.1.1/Murmur-Community-0.1.1-x64.zip) |
 
-## Try it from source
+[Release notes](https://github.com/airope/murmur-community/releases/tag/v0.1.1) · [SHA-256 checksums](https://github.com/airope/murmur-community/releases/download/v0.1.1/SHA256SUMS)
 
-Requirements: Windows x64 or macOS, **Node.js 22.12+ (22.x recommended)**, npm,
-and a microphone. Linux is not a supported release target.
+> These binaries are **unsigned and not notarized**. Windows SmartScreen or macOS Gatekeeper may block them. Do not disable system-wide security protections. If you prefer not to approve an unsigned application, build from the reviewed source instead. Users of 0.1.0 should upgrade before using the experimental ChatGPT integration.
+
+## Features
+
+- **Dictate across apps.** Start and stop with a configurable global shortcut; insert recognized text through the clipboard.
+- **Local speech recognition.** Download a Whisper model and its runtime, then use local recognition without cloud transcription.
+- **Your choice of providers.** Optional Groq, Deepgram, AssemblyAI, and ElevenLabs speech adapters use your own API keys.
+- **Optional AI rewriting.** Apply explicit AI modes to dictated text with your own provider key.
+- **Local history and statistics.** Review previous dictations and usage on your computer.
+- **Desktop controls.** Configure microphone, shortcuts, sounds, and interface language.
+
+No marketing telemetry, commercial quotas, or automatic update polling. The community application has its own identity and data directory; it does not import or overwrite the previous commercial application's data.
+
+## Screenshots
+
+Actual application captures from the isolated Windows Electron smoke test, using a clean English-language profile. No personal transcripts or provider credentials are present. These show the interface, not a live microphone or cloud-provider demonstration. [Capture details](docs/images/README.md)
+
+### Speech recognition
+
+Choose local recognition or a cloud provider, and open the local model manager. Key fields are empty.
+
+![Transcription settings with Local selected, model management, and empty provider-key fields](docs/images/transcription.png)
+
+### AI processing
+
+Optional post-processing, custom modes, dictionary, and snippets. Post-processing is off in this clean profile.
+
+![AI settings with post-processing off, custom modes, dictionary, snippets, and empty key fields](docs/images/ai-processing.png)
+
+## Quick start
+
+1. Install the Windows build, or extract the Mac ZIP and move the application to Applications.
+2. Complete setup. In **Transcription → Manage Models**, install a local model and runtime. These are separate, on-demand downloads—not bundled with the app. Check the model's language support and allow sufficient disk space. [Model requirements](docs/MODELS.md)
+3. Select your microphone and dictation shortcut. Grant microphone access when requested; macOS may also require Accessibility permission for text insertion.
+4. Focus a text field in another app. Use your configured shortcut to start dictation, speak, then use it again to stop and insert the transcript.
+
+For local-only use, keep **AI post-processing off** as well as selecting local speech recognition. Cloud transcription sends audio to the selected provider; cloud AI processing sends text. History is stored locally and is not an encrypted transcript vault. [Privacy and network behavior](docs/PRIVACY.md)
+
+### Run from source
+
+Requires Windows x64 or macOS, Node.js **22.12+ in the 22.x line** (recommended), and npm. No `.env`, backend, signing identity, or Murmur account is needed.
 
 ```sh
 git clone https://github.com/airope/murmur-community.git
@@ -37,18 +71,11 @@ npm ci
 npm run dev
 ```
 
-No `.env` file, backend deployment, Apple signing identity or Murmur account is
-needed. Complete the setup, then choose a model or configure a provider in
-Transcription settings. Local models and their inference runtime are downloaded
-separately on request, not silently at first launch. See [model provenance and
-requirements](docs/MODELS.md). English-only models are marked as such.
+The default branch may differ from the downloadable preview. To reproduce 0.1.1, check out `v0.1.1` before running `npm ci`.
 
-On macOS, grant microphone access when requested and Accessibility permission
-if required for insertion into other applications. Change the shortcut if the
-system or another app already uses it. Do not disable system-wide security
-protections to run a development build.
+## Development
 
-## Verify and package
+Built with Electron, React, and TypeScript, with shared Windows/macOS code and separate provider adapters. [Architecture and trade-offs](docs/ARCHITECTURE.md)
 
 ```sh
 npm run typecheck
@@ -56,52 +83,29 @@ npm test
 npm run build
 npm run test:smoke
 
-# On Windows
-npm run package
-
-# On macOS (unsigned development ZIPs)
-npm run package:mac
+# Package on the corresponding operating system
+npm run package      # Windows
+npm run package:mac  # macOS
 ```
 
-CI checks both operating systems and packages development artifacts. The smoke
-test launches the real Electron app with a temporary profile, exercises the
-renderer/preload/settings IPC and checks offline startup. It substitutes OS
-login-item/global-shortcut side effects and does **not** certify microphone
-capture or paste into other applications.
+CI checks Windows/macOS builds, isolated Electron startup, settings IPC, and real local recognition of a public audio fixture. The smoke test substitutes native shortcut/login-item side effects. It does **not** certify physical microphone capture, paste into every application, or authenticated cloud-provider behavior. [Verification scope](docs/VERIFICATION.md)
 
-Release availability and exact tested scope are documented in
-[verification notes](docs/VERIFICATION.md). Never treat the old commercial
-installers as builds of this repository. Builds here use a separate application
-identity and do not import or overwrite commercial Murmur data.
+## Known limits
 
-## Design and limitations
+- Early preview with best-effort maintenance, not a support SLA. Linux is not a supported release target.
+- Local models need disk space and CPU resources; language coverage and recognition quality vary. No speed or accuracy benchmark is claimed.
+- The ChatGPT website adapter is experimental, not an official API or an OpenAI-endorsed integration. Website changes and restricted login flows can break it; prefer local recognition or supported APIs.
+- Automatic active-window context detection is deliberately excluded. Explicit AI modes remain available.
+- Packaging for both Mac architectures does not establish runtime testing on both. Hardware, permissions, keyboard layouts, and live provider compatibility need testing on your system.
 
-Murmur uses Electron, React, TypeScript and provider adapters. Windows and macOS
-share one codebase; platform-specific behavior is kept in native integration and
-packaging. [Architecture and trade-offs →](docs/ARCHITECTURE.md)
+## Contributing
 
-- Local recognition requires disk space and CPU resources; quality depends on
-  the selected model and language. No speed/accuracy benchmark is claimed.
-- Local audio can still produce cloud-bound text if AI post-processing is on.
-- Experimental ChatGPT website integration is included but is not an official
-  API, is not OpenAI-endorsed and may break when the website changes. Prefer
-  local recognition or supported BYOK APIs.
-- Automatic active-window context detection is deliberately excluded from this
-  edition. Explicit AI modes remain available.
-- Development packages are unsigned/not notarized by default.
-- This is a personal project with best-effort maintenance, not a support SLA.
+Bug reports, focused fixes, documentation, and Windows/macOS compatibility reports are welcome. Include your OS, app version, steps to reproduce, and sanitized logs—never API keys or personal transcripts. Add a regression test for bug fixes and run the checks above.
 
-## Project background
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Report sensitive issues through [SECURITY.md](SECURITY.md), not a public issue.
 
-Murmur began as a personal desktop product with an associated commercial website.
-This edition extracts the reusable desktop application and removes the private
-operational dependencies. The website, billing and account backend remain in a
-separate private repository. The public history starts with the cleaned edition;
-it does not expose private operational history. Development has been AI-assisted.
+## Background and license
 
-[Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) ·
-[Privacy](docs/PRIVACY.md) · [Third-party notices](THIRD_PARTY_NOTICES.md)
+Murmur began as a personal desktop product. This community edition separates the desktop application from the private website, billing, and account services. Development has been AI-assisted.
 
-The application source is available under the [MIT license](LICENSE).
-Third-party packages, model weights, runtimes and service APIs retain their own
-licenses and terms; the application license does not replace them.
+The current source is available under the **[MIT license](LICENSE)**. The already-published **0.1.1 release was distributed under MIT**; its [tagged license](https://github.com/airope/murmur-community/blob/v0.1.1/LICENSE) remains the reference for that release. Third-party libraries, model weights, runtimes, and APIs retain their own licenses and terms. [Third-party notices](THIRD_PARTY_NOTICES.md)
